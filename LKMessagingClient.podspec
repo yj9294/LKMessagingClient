@@ -64,7 +64,7 @@ Pod::Spec.new do |s|
   #  the deployment target. You can optionally include the target after the platform.
   #
 
-  s.platform     = :ios, '5.0'
+  s.platform     = :ios, '8.0'
 
   #  When using multiple platforms
   # s.ios.deployment_target = "5.0"
@@ -134,6 +134,9 @@ Pod::Spec.new do |s|
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
 
+  s.xcconfig = {
+'VALID_ARCHS' =>  'arm64 x86_64',
+}
   s.dependency 'FMDB'
 
 end
