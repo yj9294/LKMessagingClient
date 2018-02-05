@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   #
 
   #s.license      = "MIT"
-  s.license      = { :type => "MIT", :file => "FILE_LICENSE" }
+  s.license      = { :type => "MIT", :file => "LICENSE" }
 
 
   # ――― Author Metadata  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -64,8 +64,7 @@ Pod::Spec.new do |s|
   #  the deployment target. You can optionally include the target after the platform.
   #
 
-  s.platform     = :ios
-  s.platform     = :ios, "8.0"
+  s.platform     = :ios, '5.0'
 
   #  When using multiple platforms
   # s.ios.deployment_target = "5.0"
@@ -92,7 +91,7 @@ Pod::Spec.new do |s|
   #
 
   s.source_files  = "LKMessagingClient/Client/*"
-  s.exclude_files = "LKMessagingClient/Export/*"
+  # s.exclude_files = "LKMessagingClient/Export/*"
 
   # s.public_header_files = "Classes/**/*.h"
 
@@ -117,12 +116,13 @@ Pod::Spec.new do |s|
   #  the lib prefix of their name.
   #
 
-  s.framework  = "Export"
+  s.frameworks = 'Foundation', 'CoreGraphics', 'UIKit'
   # s.frameworks = "SomeFramework", "AnotherFramework"
 
   # s.library   = ""
   # s.libraries = "iconv", "xml2"
 
+  s.ios.vendored_frameworks = "LKMessagingClient/Export/Export.framework"
 
   # ――― Project Settings ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #

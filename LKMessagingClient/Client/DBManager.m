@@ -11,7 +11,7 @@
 #import "LKMessage.h"
 #import "LKTextMessageBody.h"
 #import "ChatModel.h"
-
+#define MYLog(...)  NSLog(__VA_ARGS__)
 
 @interface DBManager ()
 

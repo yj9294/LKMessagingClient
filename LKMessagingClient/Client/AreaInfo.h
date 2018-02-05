@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#define Localized(key , comment)  [[NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"%@",[[NSUserDefaults standardUserDefaults] objectForKey:@"appLanguage"]] ofType:@"lproj"]] localizedStringForKey:(key) value:@"" table:(comment)]
 @interface AreaInfo : NSObject
 /**
  *  国家前缀
