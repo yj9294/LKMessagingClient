@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
 		   It is a library of link.
                    DESC
 
-  s.homepage     = "http://github/yj9294/LKMessagingClient"
+  s.homepage     = "https://github.com/yj9294/LKMessagingClient"
   # s.screenshots  = "www.example.com/screenshots_1.gif", "www.example.com/screenshots_2.gif"
 
 
@@ -79,7 +79,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "http://github/yj9294/LKMessagingClient.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/yj9294/LKMessagingClient.git", :tag => "#{s.version}" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -119,7 +119,7 @@ Pod::Spec.new do |s|
   s.frameworks = 'Foundation', 'CoreGraphics', 'UIKit'
   # s.frameworks = "SomeFramework", "AnotherFramework"
 
-  # s.library   = ""
+  # s.library   = "Export"
   # s.libraries = "iconv", "xml2"
 
   s.ios.vendored_frameworks = "LKMessagingClient/Export/Export.framework"
