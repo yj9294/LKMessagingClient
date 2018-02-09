@@ -44,18 +44,18 @@
     if (self = [super init]) {
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            _contactManager = [[LKContactManager alloc]init];
-            _chatManager = [[LKChatManager alloc]init];
-            _db = [DBManager sharedManager];
-            _handlerConn = [[LKConnectionHandler alloc]init];
-            _handlerConn.onConnection = ^(LKMessage *aMessage) {
+            self->_contactManager = [[LKContactManager alloc]init];
+            self->_chatManager = [[LKChatManager alloc]init];
+            self->_db = [DBManager sharedManager];
+            self->_handlerConn = [[LKConnectionHandler alloc]init];
+            self->_handlerConn.onConnection = ^(LKMessage *aMessage) {
                 NSLog(@"网络已连接");
 
                 
                 [[NSNotificationCenter defaultCenter]postNotificationName:@"connectedNotify" object:aMessage];
             };
             
-            _handlerConn.onDisconnect = ^(LKError *err) {
+            self->_handlerConn.onDisconnect = ^(LKError *err) {
                 NSLog(@"网络已断开");
                 [[NSNotificationCenter defaultCenter]postNotificationName:@"disconnectedNotify" object:nil];
             };
@@ -73,9 +73,9 @@
             NSString *ip = options[@"ip"];
             NSNumber *port = options[@"port"];
             
-             client = [[ExportClient alloc] init:ip port:port.intValue readyStateCallback:self];
+             self->client = [[ExportClient alloc] init:ip port:port.intValue readyStateCallback:self];
           //  client = [[ExportClient alloc] init:@"121.41.20.11" port:8080 readyStateCallback:self];
-            [client setDebug:true];
+            [self->client setDebug:true];
             
             
             [[NSNotificationCenter defaultCenter] addObserver:self
@@ -178,7 +178,7 @@
             if(result[@"body"][@"value"])
                 //存sid在磁盘上
                 [[NSUserDefaults standardUserDefaults] setValue:result[@"body"][@"value"] forKey:@"sid"];
-            [client setRequestProperty:@"sid" value:result[@"body"][@"value"]];
+            [self->client setRequestProperty:@"sid" value:result[@"body"][@"value"]];
         }
         
         
@@ -206,7 +206,7 @@
     
     dispatch_async(queue, ^{
         NSError *err0 = nil;
-        [client ping:_retryInterval param:nil callback:handler error:&err0];
+        [self->client ping:self->_retryInterval param:nil callback:handler error:&err0];
         if(err0){
             NSLog(@"%@",err0);
             error((LKError *)err0);
@@ -389,7 +389,7 @@
     LKDelegateHandler *handler = [[LKDelegateHandler alloc] init];
     handler.succeed = ^(LKMessage *aMessage) {
         [[NSNotificationCenter defaultCenter]postNotificationName:@"recvChatMessageNotify" object:aMessage];
-        LKTextMessageBody *body = (LKTextMessageBody *)aMessage.body;
+  //      LKTextMessageBody *body = (LKTextMessageBody *)aMessage.body;
 //        [UserInfoEngine getFriendUserInfo:aMessage.from.intValue block:^(UserInfo *info) {
 //            NSString *str = [NSString stringWithFormat:@"%@:%@", info.userNickName, body.text];
 //            dispatch_async(dispatch_get_main_queue(), ^{
@@ -432,58 +432,10 @@
 }
 
 
-- (void)addLocalNotication:(NSString *)str type:(NSInteger)type
-{
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 10.0) {
-        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-        
-        //需创建一个包含待通知内容的 UNMutableNotificationContent 对象，注意不是 UNNotificationContent ,此对象为不可变对象。
-        UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
-        //   content.title = [NSString localizedUserNotificationStringForKey:@"BLE" arguments:nil];
-        //   content.body = [NSString localizedUserNotificationStringForKey:@"Hello_message_body" arguments:nil];
-        content.body = str;
-//        NSString *soundName = [[SettingsModel getAlarmSoundName:type]lastPathComponent];
-//        content.sound = [UNNotificationSound soundNamed:soundName];
-        
-        NSDictionary *dic = [[NSBundle mainBundle] infoDictionary];
-        // 在 alertTime 后推送本地推送
-        UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger
-                                                      triggerWithTimeInterval:0.1 repeats:NO];
-        
-        UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:dic[@"CFBundleDisplayName"]
-                                                                              content:content trigger:trigger];
-        
-        //添加推送成功后的处理！
-        [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-            
-        }];
-        
-    }
-    else
-    {
-        UILocalNotification *notification=[[UILocalNotification alloc] init];
-        if (notification!=nil) {
-            notification.fireDate= [NSDate dateWithTimeIntervalSinceNow:0.1];
-            //使用本地时区
-            notification.timeZone = [NSTimeZone defaultTimeZone];
-            notification.alertBody= str;
-//            NSString *soundName = [[SettingsModel getAlarmSoundName:type]lastPathComponent];
-      //      notification.soundName = soundName;
-            //通知提示音 使用默认的
-            //  notification.soundName = UILocalNotificationDefaultSoundName;
-            //  notification.alertAction = NSLocalizedString(@"BLE", nil);
-            [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-        }
-    }
-}
-
 - (int)getUnreadMsgCount
 {
     return [[DBManager sharedManager] dbGetAllUnreadCount];
 }
-
-
-
 @end
 
 
