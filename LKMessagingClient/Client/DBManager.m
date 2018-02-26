@@ -538,12 +538,12 @@
     }];
 }
 
-- (void)dbSetAllMsgRead:(int)user_id
-               friend_id:(int)friend_id
+- (void)dbSetAllMsgRead:(int)userId
+               toId:(NSString *)toId
 {
     [self.queue inDatabase:^(FMDatabase *db) {
         
-        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%d AND toId=%d", friend_id, user_id];
+        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%@ AND toId=%d", toId, userId];
         BOOL success1;
         FMResultSet *resultSet = [db executeQuery:sqlStr];
         while (resultSet.next) {
@@ -554,14 +554,13 @@
     return ;
 }
 
-- (int)dbGetAllMsgRead:(int)user_id
-              friend_id:(int)friend_id
+- (int)dbGetAllMsgRead:(int)userId
+              toId:(NSString *)toId
 {
     __block int count = 0;
     [self.queue inDatabase:^(FMDatabase *db) {
         
-        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%d AND toId=%d AND isAcked=0", friend_id, user_id];
-        BOOL success1;
+        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%@ AND toId=%d AND isAcked=0", toId, userId];
         FMResultSet *resultSet = [db executeQuery:sqlStr];
         while (resultSet.next) {
             count++;
@@ -571,42 +570,40 @@
     return count;
 }
 
-- (NSArray *)dbGetAllMsg:(int)user_id
-               friend_id:(int)friend_id
+- (NSArray *)dbGetAllMsg:(int)userId
+               toId:(NSString *)toId
 {
     __block NSMutableArray *array = [NSMutableArray array];
     [self.queue inDatabase:^(FMDatabase *db) {
         
-        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%d AND toId=%d", user_id, friend_id];
-        BOOL success1;
+        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%d AND toId=%@", userId, toId];
         FMResultSet *resultSet = [db executeQuery:sqlStr];
         while (resultSet.next) {
             ChatModel *model = [[ChatModel alloc]init];
             model.isMe = [resultSet intForColumn:@"direction"]==LKMessageDirectionSend;
             model.log = [resultSet stringForColumn:@"bodyMessage"];
             model.time = [resultSet intForColumn:@"localTime"];
-            model.friendId = friend_id;
+            model.friendId = [toId intValue];
             model.isRead = [resultSet intForColumn:@"isAcked"];
             [array addObject:model];
         }
         [resultSet close];
     }];
     
-    if (user_id == friend_id) {
+    if (userId == [toId intValue]) {
         return array;
     }
     
     [self.queue inDatabase:^(FMDatabase *db) {
         
-        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%d AND toId=%d", friend_id, user_id];
-        BOOL success1;
+        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%@ AND toId=%d", toId, userId];
         FMResultSet *resultSet = [db executeQuery:sqlStr];
         while (resultSet.next) {
             ChatModel *model = [[ChatModel alloc]init];
             model.isMe = NO;
             model.log = [resultSet stringForColumn:@"bodyMessage"];
             model.time = [resultSet intForColumn:@"localTime"];
-            model.friendId = friend_id;
+            model.friendId = [toId intValue];
             model.isRead = [resultSet intForColumn:@"isAcked"];
             [array addObject:model];
         }
@@ -623,8 +620,6 @@
         }
     }];
     return array;
-    
-    
 }
 
 - (void)dbDeleteConversation:(NSString *)aConversationId
@@ -632,25 +627,25 @@
     [self.queue inDatabase:^(FMDatabase *db) {
         NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'ConversationData' WHERE conversationId='%@' AND type='%d'", aConversationId, LKConversationTypeChat];
         //  NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE fromId=%d AND toId=%d", friend_id, user_id];
-        BOOL result = [db executeUpdate:sqlStr];
+        [db executeUpdate:sqlStr];
         MYLog(@"%@",db.lastErrorMessage);
     }];
 }
 
 //根据用户id和好友id删除两人之间的对话
-- (BOOL)dbDeleteAllMsg:(int)user_id friend_id:(int)friend_id{
+- (BOOL)dbDeleteAllMsg:(int)userId toId:(NSString *)toId{
     __block BOOL result,result1;
     
     
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE fromId=%d AND toId=%d", friend_id, user_id];
+        NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE fromId=%@ AND toId=%d", toId, userId];
        result = [db executeUpdate:sqlStr];
         MYLog(@"%@",db.lastErrorMessage);
     }];
     
     [self.queue inDatabase:^(FMDatabase * _Nonnull db) {
-        NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE fromId=%d AND toId=%d",  user_id, friend_id];
+        NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE fromId=%d AND toId=%@",  userId, toId];
         result1 = [db executeUpdate:sqlStr];
         MYLog(@"%@",db.lastErrorMessage);
     } ];

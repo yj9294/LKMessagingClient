@@ -125,7 +125,7 @@
 {
     int account = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"];
     [_db dbConversationReadAllMessage:_conversationId];
-    [_db dbSetAllMsgRead:account friend_id:_conversationId.intValue];
+    [_db dbSetAllMsgRead:account toId:_conversationId];
 }
 
 /*!

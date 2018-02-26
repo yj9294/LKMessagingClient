@@ -43,7 +43,7 @@
     int user_id = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"];
     [_db dbDeleteConversation:aConversationId];
     if (aIsDeleteMessages) {
-        BOOL result = [_db dbDeleteAllMsg:user_id friend_id:aConversationId.intValue];
+        BOOL result = [_db dbDeleteAllMsg:user_id toId:aConversationId];
     }
     aCompletionBlock(aConversationId, nil);
 }
@@ -105,10 +105,10 @@
     NSLog(@"%s not implement!", __func__);
     return nil;
 }
-- (NSArray *)getAllMessageOfAConversatioin:(int)friend_id
+- (NSArray *)getAllMessageOfAConversatioin:(NSString *)friend_id
 {
     int user_id = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"];
-    return [_db dbGetAllMsg:user_id friend_id:friend_id];
+    return [_db dbGetAllMsg:user_id toId:friend_id];
 }
 
 - (void)importConversations:(NSArray *)aConversations completion:(void (^)(LKError *))aCompletionBlock {
@@ -179,6 +179,9 @@
     switch (aMessage.chatType) {
         case LKChatTypeChat:
             chatType = @"chat";
+            break;
+        case LKChatTypeChatRoom:
+            chatType = @"room";
             break;
             
         default:

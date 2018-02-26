@@ -54,14 +54,14 @@
 
 - (int)dbGetAllUnreadCount;
 
-- (NSArray *)dbGetAllMsg:(int)user_id
-               friend_id:(int)friend_id;
+- (NSArray *)dbGetAllMsg:(int)userId
+               toId:(NSString *)toId;
 //根据用户id和好友id删除两人之间的对话
-- (BOOL)dbDeleteAllMsg:(int)user_id friend_id:(int)friend_id;
+- (BOOL)dbDeleteAllMsg:(int)userId toId:(NSString *)toId;
 
-- (void)dbSetAllMsgRead:(int)user_id
-              friend_id:(int)friend_id;
+- (void)dbSetAllMsgRead:(int)userId
+              toId:(NSString *)toId;
 
-- (int)dbGetAllMsgRead:(int)user_id
-             friend_id:(int)friend_id;
+- (int)dbGetAllMsgRead:(int)userId
+             toId:(NSString *)toId;
 @end

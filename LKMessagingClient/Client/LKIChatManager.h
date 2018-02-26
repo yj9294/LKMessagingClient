@@ -36,13 +36,7 @@
 /*!
  *  \~chinese
  *  获取所有会话，如果内存中不存在会从DB中加载
- *
- *  @result 会话列表<EMConversation>
- *
- *  \~english
- *  Get all conversations, by loading conversations from DB if not exist in memory
- *
- *  @result Conversation list<EMConversation>
+ * 
  */
 - (void)getAllConversations:(void (^)(NSArray * array)) aCompletionBlock;
 
@@ -209,7 +203,7 @@
 - (void)deleteMessage:(NSString *)msg_id
            completion:(void (^)(LKMessage *aMessage, LKError *aError))aCompletionBlock;
 
-- (NSArray *)getAllMessageOfAConversatioin:(int)friend_id;
+- (NSArray *)getAllMessageOfAConversatioin:(NSString *)friend_id;
 
 //- (void)getHistoryMsg:(int)friend_id completion:(void (^)(void))aCompletionBlock;
 @end

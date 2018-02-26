@@ -23,6 +23,7 @@
 #import "LKChatManagerDelegate.h"
 
 #import "LKIChatManager.h"
+#import "LKIChatroomManager.h"
 
 //#import "DBManager.h"
 #import "LKIContactManager.h"
@@ -169,6 +170,8 @@
 
 @property (nonatomic, strong, readonly) id<LKIContactManager> contactManager;
 
+@property (nonatomic, strong, readonly) id<LKIChatroomManager> roomManager;
+
 ///*!
 // *  \~chinese
 // *  初始化会话
@@ -215,6 +218,10 @@
  */
 
 - (void)login;
+
+- (void) loginWithUsername:(NSString *)aUsername
+                  password:(NSString *)aPassword
+                completion:(void(^)(NSString *aUsername, LKError *aError))aCompletionBlock;
 - (void)loginWithToken:(NSString *)token;
 
 //- (void) loginWithUsername:(NSString *)aUsername

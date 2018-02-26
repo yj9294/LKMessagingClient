@@ -13,6 +13,7 @@
 //#import "LKIContactManager.h"
 #import "LKContactManager.h"
 #import "LKChatManager.h"
+#import "LKChatroomManager.h"
 #import <UserNotifications/UserNotifications.h>
 //#import "UserInfoEngine.h"
 @interface LKClient () <ExportReadyStateCallback>
@@ -46,6 +47,7 @@
         dispatch_once(&onceToken, ^{
             self->_contactManager = [[LKContactManager alloc]init];
             self->_chatManager = [[LKChatManager alloc]init];
+            self->_roomManager = [[LKChatroomManager alloc] init];
             self->_db = [DBManager sharedManager];
             self->_handlerConn = [[LKConnectionHandler alloc]init];
             self->_handlerConn.onConnection = ^(LKMessage *aMessage) {
@@ -263,8 +265,8 @@
 
 - (void)login
 {
-    NSString *account = [NSString stringWithFormat:@"%ld", [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"]] ;
-    NSString *pwd = [[NSUserDefaults standardUserDefaults] stringForKey:@"chat_password"];
+    NSString *account = @"62947" ;
+    NSString *pwd = @"80ad431f7812737b21cf641bbc2965da";
     if (account && pwd) {
         //登陆
         [self loginWithUsername:account password:pwd completion:^(NSString *aUsername, LKError *aError) {
