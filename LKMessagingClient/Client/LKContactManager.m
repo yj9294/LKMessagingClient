@@ -28,9 +28,56 @@
 }
 
 - (void)acceptInvitation:(int)userId {
-    NSLog(@"%s not implement!", __func__);
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"%d", userId], @"fid",nil];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
+    
+    LKContectAddDeleteHandler *handler = [[LKContectAddDeleteHandler alloc] init];
+    
+    handler.succeed = ^() {
+        //   aCompletionBlock(aMessage2, nil);
+        //  block(true);
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"ContactChangedNotify" object:@(userId)];
+        NSLog(@"acceptInvitation success");
+    };
+    handler.failure = ^(LKError *err) {
+        //  aCompletionBlock(nil,err);
+        //    block(false);
+        NSLog(@"acceptInvitation fail");
+    };
+    
+    LKError *err0 = nil;
+    [_client asyncSend:@"/v1/add/contact/agree" param:data callback:handler error:&err0];
+    if(err0){
+        NSLog(@"asyncSend fail");
+        // aCompletionBlock(nil,err0);
+    }
 }
 
+- (void)declineInvitation:(int)userId {
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"%d", userId], @"fid",nil];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
+    
+    LKContectAddDeleteHandler *handler = [[LKContectAddDeleteHandler alloc] init];
+    
+    handler.succeed = ^() {
+        //   aCompletionBlock(aMessage2, nil);
+        //   block(true);
+        //  [[NSNotificationCenter defaultCenter]postNotificationName:@"ContactChangedNotify" object:@(userId)];
+        NSLog(@"declineInvitation success");
+    };
+    handler.failure = ^(LKError *err) {
+        //  aCompletionBlock(nil,err);
+        //    block(false);
+        NSLog(@"declineInvitation fail");
+    };
+    
+    LKError *err0 = nil;
+    [_client asyncSend:@"/v1/add/contact/reject" param:data callback:handler error:&err0];
+    if(err0){
+        NSLog(@"asyncSend fail");
+        // aCompletionBlock(nil,err0);
+    }
+}
 
 
 - (void)addContact:(int)userId  block:(void(^)(BOOL bSuccess)) block{
@@ -64,13 +111,7 @@
     NSLog(@"%s not implement!", __func__);
 }
 
-- (void)declineInvitation:(int)userId {
-    NSLog(@"%s not implement!", __func__);
-}
 
-//- (NSArray *)getAllFriendFromServer:(void (^)(BOOL))block {
-//    <#code#>
-//}
 
 - (void) getAllFriendFromServer:(void(^)(BOOL bSuccess)) block
 {
@@ -245,6 +286,9 @@
 
 - (NSArray *)getFans:(int)user_id {
     return [_db dbGetFans:user_id];
+}
+- (NSArray *)getFriends:(int)user_id{
+    return [_db dbGetFriends:user_id];
 }
 
 - (int)getUserAttentionType:(int)user_id {

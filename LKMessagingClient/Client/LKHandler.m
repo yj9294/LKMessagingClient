@@ -243,8 +243,19 @@
                 }
                 //LKMessageDirectionReceive;
          //       [[DBManager sharedManager]dbUpdateMessage:message];
-                LKConversation *con = [[LKConversation alloc]initWithId:message.conversationId andType:LKConversationTypeChat];
+                LKChatType chatType;
+                if([bodyDic[@"type"] isEqualToString:@"chat"]){
+                    chatType = LKChatTypeChat;
+                }
+                else if([bodyDic[@"type"] isEqualToString:@"room"]){
+                    chatType = LKChatTypeChatRoom;
+                }
+                else
+                    chatType = LKChatTypeGroupChat;
+                
+                LKConversation *con = [[LKConversation alloc]initWithId:message.conversationId andType:(LKConversationType)chatType];
                 LKError *err;
+                message.chatType = chatType;
                 [con appendMessage:message error:&err];
                 msgCallBack = message;
             }

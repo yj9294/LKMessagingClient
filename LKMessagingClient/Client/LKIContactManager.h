@@ -28,6 +28,7 @@
 - (void)setStickOfUser:(int)userId bStick:(BOOL)bStick block:(void(^)(BOOL bSuccess)) block;
 - (NSArray *)getAttentions:(int)user_id;
 - (NSArray *)getFans:(int)user_id;
+- (NSArray *)getFriends:(int)user_id;
 - (BOOL)isUserHasAttention:(int)user_id;
 - (int)getUserAttentionType:(int)user_id;
 - (BOOL)isUserHasMask:(int)user_id;

@@ -25,3 +25,7 @@
 @property (nonatomic, copy) void (^failure)(LKError *err);
 
 @end
+
+@interface LKContactChangedHandler :  NSObject <ExportHandler>
+@property (nonatomic, copy) void (^onInviate)(int fromUser, NSString *str);
+@end

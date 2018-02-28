@@ -22,6 +22,7 @@
 
 - (NSArray *)dbGetAttentions:(int)user_id;
 - (NSArray *)dbGetFans:(int)user_id;
+- (NSArray *)dbGetFriends:(int)user_id;
 - (void)dbAddAttentions:(NSArray *)array user_id:(int)user_id;
 - (void)dbAddFans:(NSArray *)array user_id:(int)user_id;
 //- (void)dbRemoveFans:(int)friend_id user_id:(int)user_id;
@@ -53,6 +54,8 @@
 - (void)dbUpdateMessageRead:(LKMessage *)aMessage;
 
 - (int)dbGetAllUnreadCount;
+
+- (NSArray *)dbGetAllMsg:(NSString *)toId;
 
 - (NSArray *)dbGetAllMsg:(int)userId
                toId:(NSString *)toId;

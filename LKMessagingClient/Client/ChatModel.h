@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @interface ChatModel : NSObject
+@property (nonatomic, strong) NSString *fromId;
 @property (nonatomic, strong) NSString *imageUrl;
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *log;

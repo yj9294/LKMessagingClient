@@ -137,6 +137,24 @@
     }];
     return array;
 }
+- (NSArray *)dbGetFriends:(int)user_id{
+    
+    __block NSMutableArray *array = [NSMutableArray array];
+    
+    NSMutableArray *attentionArray = [NSMutableArray arrayWithArray: [self dbGetAttentions:user_id]];
+    NSMutableArray *fansArray      = [NSMutableArray arrayWithArray: [self dbGetFans:user_id]];
+    for(FriendModel *attention in attentionArray){
+        for(FriendModel *fans in fansArray){
+            if(attention.friend_id == fans.friend_id){
+                [array addObject:attention];
+            }
+        }
+    }
+    //排序
+    NSSortDescriptor *descriptor = [NSSortDescriptor sortDescriptorWithKey:@"friend_nickname" ascending:YES];
+    [array  sortUsingDescriptors:@[descriptor]];
+    return array;
+}
 
 - (BOOL)isUserHasMask:(int)user_id
 {
@@ -543,7 +561,7 @@
 {
     [self.queue inDatabase:^(FMDatabase *db) {
         
-        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%@ AND toId=%d", toId, userId];
+        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId='%@' AND toId=%d", toId, userId];
         BOOL success1;
         FMResultSet *resultSet = [db executeQuery:sqlStr];
         while (resultSet.next) {
@@ -560,7 +578,7 @@
     __block int count = 0;
     [self.queue inDatabase:^(FMDatabase *db) {
         
-        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%@ AND toId=%d AND isAcked=0", toId, userId];
+        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId='%@' AND toId=%d AND isAcked=0", toId, userId];
         FMResultSet *resultSet = [db executeQuery:sqlStr];
         while (resultSet.next) {
             count++;
@@ -576,7 +594,7 @@
     __block NSMutableArray *array = [NSMutableArray array];
     [self.queue inDatabase:^(FMDatabase *db) {
         
-        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%d AND toId=%@", userId, toId];
+        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%d AND toId='%@'", userId, toId];
         FMResultSet *resultSet = [db executeQuery:sqlStr];
         while (resultSet.next) {
             ChatModel *model = [[ChatModel alloc]init];
@@ -596,7 +614,7 @@
     
     [self.queue inDatabase:^(FMDatabase *db) {
         
-        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId=%@ AND toId=%d", toId, userId];
+        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE fromId='%@' AND toId=%d", toId, userId];
         FMResultSet *resultSet = [db executeQuery:sqlStr];
         while (resultSet.next) {
             ChatModel *model = [[ChatModel alloc]init];
@@ -621,6 +639,26 @@
     }];
     return array;
 }
+- (NSArray *)dbGetAllMsg:(NSString *)toId{
+    __block NSMutableArray *array = [NSMutableArray array];
+    [self.queue inDatabase:^(FMDatabase *db) {
+        
+        NSString *sqlStr = [NSString stringWithFormat:@"SELECT * FROM 'MessageData' WHERE toId='%@'", toId];
+        FMResultSet *resultSet = [db executeQuery:sqlStr];
+        while (resultSet.next) {
+            ChatModel *model = [[ChatModel alloc]init];
+            model.fromId =[resultSet stringForColumn:@"fromId"];
+            model.isMe = [resultSet intForColumn:@"direction"]==LKMessageDirectionSend;
+            model.log = [resultSet stringForColumn:@"bodyMessage"];
+            model.time = [resultSet intForColumn:@"localTime"];
+            model.friendId = [toId intValue];
+            model.isRead = [resultSet intForColumn:@"isAcked"];
+            [array addObject:model];
+        }
+        [resultSet close];
+    }];
+    return array;
+}
 
 - (void)dbDeleteConversation:(NSString *)aConversationId
 {
@@ -639,13 +677,13 @@
     
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE fromId=%@ AND toId=%d", toId, userId];
+        NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE fromId='%@' AND toId=%d", toId, userId];
        result = [db executeUpdate:sqlStr];
         MYLog(@"%@",db.lastErrorMessage);
     }];
     
     [self.queue inDatabase:^(FMDatabase * _Nonnull db) {
-        NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE fromId=%d AND toId=%@",  userId, toId];
+        NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE fromId=%d AND toId='%@'",  userId, toId];
         result1 = [db executeUpdate:sqlStr];
         MYLog(@"%@",db.lastErrorMessage);
     } ];

@@ -147,8 +147,10 @@
     NSString *osVer = [[UIDevice currentDevice] systemVersion];
     NSDictionary *dic = [[NSBundle mainBundle] infoDictionary];
     NSString *localVersionShort = dic[@"CFBundleShortVersionString"];
+    NSString *appName = dic[@"CFBundleName"];
     NSString *devToken = [[NSUserDefaults standardUserDefaults]objectForKey:@"deviceTokenForIM"];
-    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:@"mobile",@"device",@"iOS",@"os", osVer,@"os_version",@"WordWheat",@"app",localVersionShort,@"app_version",@{},@"tag", devToken, @"push_token", nil];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:@"mobile",@"device",@"iOS",@"os", osVer,@"os_version",appName,@"app",localVersionShort,@"app_version",@{},@"tag", devToken, @"push_token", nil];
+   
     NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
     LKHandler *handler = [[LKHandler alloc] init];
     handler.succeed = ^(NSDictionary *result) {
@@ -265,8 +267,8 @@
 
 - (void)login
 {
-    NSString *account = @"62947" ;
-    NSString *pwd = @"80ad431f7812737b21cf641bbc2965da";
+    NSString *account = [NSString stringWithFormat:@"%ld", [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"]] ;
+    NSString *pwd = [[NSUserDefaults standardUserDefaults] stringForKey:@"chat_password"];
     if (account && pwd) {
         //登陆
         [self loginWithUsername:account password:pwd completion:^(NSString *aUsername, LKError *aError) {
@@ -391,14 +393,6 @@
     LKDelegateHandler *handler = [[LKDelegateHandler alloc] init];
     handler.succeed = ^(LKMessage *aMessage) {
         [[NSNotificationCenter defaultCenter]postNotificationName:@"recvChatMessageNotify" object:aMessage];
-  //      LKTextMessageBody *body = (LKTextMessageBody *)aMessage.body;
-//        [UserInfoEngine getFriendUserInfo:aMessage.from.intValue block:^(UserInfo *info) {
-//            NSString *str = [NSString stringWithFormat:@"%@:%@", info.userNickName, body.text];
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                [self addLocalNotication:str type:0];
-//            });
-//
-//        }];
         
     };
     
@@ -428,9 +422,14 @@
         NSLog(@"onContact, event = %d", event);
     };
     
+    LKContactChangedHandler *handler3 = [[LKContactChangedHandler alloc]init];
+    handler3.onInviate = ^(int fromUser, NSString *str) {
+    };
+    
     [client addMessageListener:@"/v1/multi/device/listener" callback:handler2];
     [client addMessageListener:@"/v1/message/listener" callback:handler];
     [client addMessageListener:@"/v1/connection/listener" callback:_handlerConn];
+    [client addMessageListener:@"/v1/conatct/listener" callback:handler3];
 }
 
 

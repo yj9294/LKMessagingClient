@@ -36,8 +36,14 @@
                 error:(LKError **)pError
 {
     _latestMessage = aMessage;
-    [_db dbUpdateMessage:aMessage];
-    [_db dbUpdateConversation:_conversationId latestMessage:aMessage];
+    if(aMessage.chatType == LKChatTypeChat){
+        [_db dbUpdateMessage:aMessage];
+        [_db dbUpdateConversation:_conversationId latestMessage:aMessage];
+    }
+    else{
+        [_db dbUpdateMessage:aMessage];
+    }
+
 }
 
 /*!
@@ -52,8 +58,14 @@
                 error:(LKError **)pError
 {
     _latestMessage = aMessage;
-    [_db dbUpdateMessage:aMessage];
-    [_db dbUpdateConversation:_conversationId latestMessage:aMessage];
+    if(aMessage.chatType == LKChatTypeChat){
+        [_db dbUpdateMessage:aMessage];
+        [_db dbUpdateConversation:_conversationId latestMessage:aMessage];
+    }
+    else {
+        [_db dbUpdateMessage:aMessage];
+    }
+
 }
 
 /*!

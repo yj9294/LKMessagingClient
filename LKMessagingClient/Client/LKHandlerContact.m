@@ -138,3 +138,39 @@
     
 }
 @end
+
+
+@implementation LKContactChangedHandler
+
+- (void)handle:(NSData *)header body:(NSData *)body{
+    NSDictionary *headerDic;
+    NSDictionary *bodyArray;
+    if(header){
+        headerDic = [NSJSONSerialization JSONObjectWithData:header options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(body){
+        bodyArray = [NSJSONSerialization JSONObjectWithData:body options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(!headerDic){
+        headerDic = @{};
+    }
+    if(!bodyArray){
+        return;
+    }
+    
+    NSString *action = bodyArray[@"msg"][@"action"];
+    NSLog(@"联系人变化: %@", action);
+    
+    if ([action isEqualToString:@"invited"]) {
+        NSString *fid = bodyArray[@"from"];
+        NSString *str = bodyArray[@"msg"][@"message"];
+        _onInviate(fid.intValue, str);
+    }
+    else if ([action isEqualToString:@"agree"] || [action isEqualToString:@"reject"] || [action isEqualToString:@"delete"] || [action isEqualToString:@"add"]) {
+        
+        [[LKClient sharedClient].contactManager getAllFriendFromServer:^(BOOL bSuccess) {
+            // self.succeed();
+        }];
+    }
+}
+@end

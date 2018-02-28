@@ -110,6 +110,9 @@
     int user_id = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"];
     return [_db dbGetAllMsg:user_id toId:friend_id];
 }
+- (NSArray *)getAllRoomMessageOfAConversatioin:(NSString *)roomId{
+    return [_db dbGetAllMsg:roomId];
+}
 
 - (void)importConversations:(NSArray *)aConversations completion:(void (^)(LKError *))aCompletionBlock {
     for (LKConversation *conv in aConversations) {

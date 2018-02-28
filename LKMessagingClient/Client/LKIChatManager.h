@@ -205,5 +205,7 @@
 
 - (NSArray *)getAllMessageOfAConversatioin:(NSString *)friend_id;
 
+- (NSArray *)getAllRoomMessageOfAConversatioin:(NSString *)roomId;
+
 //- (void)getHistoryMsg:(int)friend_id completion:(void (^)(void))aCompletionBlock;
 @end
