@@ -48,6 +48,11 @@
     aCompletionBlock(aConversationId, nil);
 }
 
+- (void)deleteRoomMsg:(NSString *)roomId completion:(void (^)(LKError *aError))aCompletionBlock{
+    [_db dbDeleteAllRoomMsg:roomId];
+    aCompletionBlock(nil);
+}
+
 - (void)deleteConversations:(NSArray *)aConversations isDeleteMessages:(BOOL)aIsDeleteMessages completion:(void (^)(LKError *))aCompletionBlock {
     NSLog(@"%s not implement!", __func__);
 }

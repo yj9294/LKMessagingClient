@@ -648,7 +648,8 @@
         while (resultSet.next) {
             ChatModel *model = [[ChatModel alloc]init];
             model.fromId =[resultSet stringForColumn:@"fromId"];
-            model.isMe = [resultSet intForColumn:@"direction"]==LKMessageDirectionSend;
+            NSString *userID = [[NSUserDefaults standardUserDefaults] stringForKey:@"userID"];
+            model.isMe = [model.fromId isEqualToString:userID];
             model.log = [resultSet stringForColumn:@"bodyMessage"];
             model.time = [resultSet intForColumn:@"localTime"];
             model.friendId = [toId intValue];
@@ -688,6 +689,16 @@
         MYLog(@"%@",db.lastErrorMessage);
     } ];
     return result&&result1;
+}
+- (BOOL)dbDeleteAllRoomMsg:(NSString *)roomId{
+    __block BOOL result;
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 'MessageData' WHERE  toId='%@'", roomId];
+        result = [db executeUpdate:sqlStr];
+        MYLog(@"%@",db.lastErrorMessage);
+    }];
+    return result;
 }
 
 @end

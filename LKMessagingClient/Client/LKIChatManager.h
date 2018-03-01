@@ -81,6 +81,13 @@
 - (void)deleteConversations:(NSArray *)aConversations
            isDeleteMessages:(BOOL)aIsDeleteMessages
                  completion:(void (^)(LKError *aError))aCompletionBlock;
+/*!
+ *  \~chinese
+ *  删除聊天室信息
+ *
+ */
+- (void)deleteRoomMsg:(NSString *)roomId completion:(void (^)(LKError *aError))aCompletionBlock;
+
 
 /*!
  *  \~chinese

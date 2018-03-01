@@ -61,7 +61,8 @@
                toId:(NSString *)toId;
 //根据用户id和好友id删除两人之间的对话
 - (BOOL)dbDeleteAllMsg:(int)userId toId:(NSString *)toId;
-
+//根据聊天室id删除聊天室消息
+- (BOOL)dbDeleteAllRoomMsg:(NSString *)roomId;
 - (void)dbSetAllMsgRead:(int)userId
               toId:(NSString *)toId;
 
