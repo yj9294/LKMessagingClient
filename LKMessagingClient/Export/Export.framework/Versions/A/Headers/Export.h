@@ -8,5 +8,6 @@
 #define __Export_FRAMEWORK_H__
 
 #include "Export.objc.h"
+#include "Universe.objc.h"
 
 #endif
