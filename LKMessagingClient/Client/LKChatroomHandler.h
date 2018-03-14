@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "LKChatroom.h"
+#import "ChatModel.h"
 #import "LKClient.h"
 
 @interface LKChatroomHandler : NSObject <ExportRequestStatusCallback>
@@ -21,6 +22,22 @@
 @interface LKCreateChatroomHandler : NSObject <ExportRequestStatusCallback>
 
 @property (nonatomic, copy) void (^succeed)(NSString *roomId);
+
+@property (nonatomic, copy) void (^failure)(LKError *err);
+
+@end
+
+@interface LKJoinChatroomHandler :  NSObject <ExportRequestStatusCallback>
+
+@property (nonatomic, copy) void (^succeed)(NSArray <ChatModel *> *messageArray);
+
+@property (nonatomic, copy) void (^failure)(LKError *err);
+
+@end
+
+@interface LKGetHistoryHandler: NSObject <ExportRequestStatusCallback>
+
+@property (nonatomic, copy) void (^succeed)(NSArray <ChatModel *> *messageArray);
 
 @property (nonatomic, copy) void (^failure)(LKError *err);
 

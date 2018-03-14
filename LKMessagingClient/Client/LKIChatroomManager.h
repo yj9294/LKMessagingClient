@@ -16,7 +16,7 @@
 //销毁聊天室
 - (void)destroyChatroom:(NSString *)room_id block:(void(^)(BOOL bSuccess)) block;
 //加入聊天室
-- (void)joinChatroom:(NSString *)room_id block:(void(^)(BOOL bSuccess))block;
+- (void)joinChatroom:(NSString *)room_id block:(void(^)(NSArray *messageArray))block;
 // 离开聊天室
 - (void)leaveChatroom:(NSString *)room_id block:(void(^)(BOOL bSuccess)) block;
 
@@ -42,5 +42,6 @@
 - (void)fetchChatRoomFromServer:(NSString *)room_id block:(void(^)(LKChatroom *room)) block;
 //获取置顶聊天室列表
 - (void)getStickRoomWithLang:(NSString *)lang block:(void(^)(NSArray *roomList)) block;
-
+//获取聊天室历史消息
+- (void)getHistoryRoomMessage:(NSString *)room_id startTime:(int)time limit:(int)limit block:(void(^)(NSArray *messageArray))block;
 @end

@@ -89,17 +89,16 @@
  *  加入聊天室{"room_id":"5a8bce182b934169cf517b41","member":45}
  *
  */
-- (void)joinChatroom:(NSString *)room_id block:(void (^)(BOOL))block{
+- (void)joinChatroom:(NSString *)room_id block:(void (^)(NSArray *messageArray))block{
     
     NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:room_id, @"room_id",nil];
     
     NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
     
-    LKChatroomHandler *handler = [[LKChatroomHandler alloc] init];
+    LKJoinChatroomHandler *handler = [[LKJoinChatroomHandler alloc] init];
     
-    handler.succeed = ^(BOOL aBool) {
-        //   aCompletionBlock(aMessage2, nil);
-        block(true);
+    handler.succeed = ^(NSArray<ChatModel *> *messageArray) {
+        block(messageArray);
     };
     handler.failure = ^(LKError *err) {
         //  aCompletionBlock(nil,err);
@@ -241,6 +240,33 @@
         // aCompletionBlock(nil,err0);
     }
 }
+/**
+ *  //获取聊天室历史消息
+ *
+ */
+- (void)getHistoryRoomMessage:(NSString *)room_id startTime:(int)time limit:(int)limit block:(void(^)(NSArray *messageArray))block{
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:room_id, @"room_id",@(time),@"start_time",@(limit),@"limit",nil];
+    
+    NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
+    
+    LKGetHistoryHandler *handler = [[LKGetHistoryHandler alloc] init];
+    
+    handler.succeed = ^(NSArray<ChatModel *> *messageArray) {
+        block(messageArray);
+    };
+    handler.failure = ^(LKError *err) {
+        NSLog(@"%s fail",  __func__);
+        block(false);
+    };
+    
+    LKError *err0 = nil;
+    [_client asyncSend:@"/v1/chatroom/history/message" param:data callback:handler error:&err0];
+    if(err0){
+        NSLog(@"asyncSend fail");
+    }
+}
+
+
 /**
  *  添加管理员 {"room_id":"5a8bce182b934169cf517b41","admin_id":217}
  *

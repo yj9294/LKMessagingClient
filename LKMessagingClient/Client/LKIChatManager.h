@@ -86,8 +86,7 @@
  *  删除聊天室信息
  *
  */
-- (void)deleteRoomMsg:(NSString *)roomId completion:(void (^)(LKError *aError))aCompletionBlock;
-
+- (void)deleteRoomMsg:(NSString *)roomId completion:(void (^)(BOOL ret))aCompletionBlock;
 
 /*!
  *  \~chinese

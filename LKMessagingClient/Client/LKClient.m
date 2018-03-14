@@ -43,8 +43,8 @@
 - (instancetype)initWithOptions:(NSDictionary *)options {
     
     if (self = [super init]) {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
+//        static dispatch_once_t onceToken;
+//        dispatch_once(&onceToken, ^{
             self->_contactManager = [[LKContactManager alloc]init];
             self->_chatManager = [[LKChatManager alloc]init];
             self->_roomManager = [[LKChatroomManager alloc] init];
@@ -77,8 +77,8 @@
             
              self->client = [[ExportClient alloc] init:ip port:port.intValue readyStateCallback:self];
           //  client = [[ExportClient alloc] init:@"121.41.20.11" port:8080 readyStateCallback:self];
-            [self->client setDebug:true];
-            
+//            [self->client setDebug:true];
+        
             
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(appDidChangeState:)
@@ -91,7 +91,7 @@
                                                        object:nil];
             
            
-        });
+//        });
     }
     return self;
 }

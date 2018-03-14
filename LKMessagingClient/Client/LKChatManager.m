@@ -48,9 +48,8 @@
     aCompletionBlock(aConversationId, nil);
 }
 
-- (void)deleteRoomMsg:(NSString *)roomId completion:(void (^)(LKError *aError))aCompletionBlock{
-    [_db dbDeleteAllRoomMsg:roomId];
-    aCompletionBlock(nil);
+- (void)deleteRoomMsg:(NSString *)roomId completion:(void (^)(BOOL ret))aCompletionBlock{
+    aCompletionBlock([_db dbDeleteAllRoomMsg:roomId]);
 }
 
 - (void)deleteConversations:(NSArray *)aConversations isDeleteMessages:(BOOL)aIsDeleteMessages completion:(void (^)(LKError *))aCompletionBlock {
@@ -210,7 +209,7 @@
         LKConversation *con = [[LKConversation alloc]initWithId:aMessage.conversationId andType:LKConversationTypeChat];
         LKError *err;
         [con appendMessage:aMessage error:&err];
-        aCompletionBlock(aMessage2, nil);
+        aCompletionBlock(aMessage, nil);
         [[NSNotificationCenter defaultCenter]postNotificationName:@"sendMessageNotify" object:nil];
     };
     self.failure = ^(LKError *err) {

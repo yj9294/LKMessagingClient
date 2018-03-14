@@ -7,6 +7,7 @@
 //
 
 #import "LKChatroomHandler.h"
+#import "DBManager.h"
 #import "LKChatroom.h"
 
 @implementation LKChatroomHandler
@@ -76,6 +77,97 @@
 }
 @end
 
+@implementation LKJoinChatroomHandler
+
+- (void)onEnd{
+    NSLog(@"%s",__func__);
+}
+- (void)onError:(long)status message:(NSString*)message{
+    NSLog(@"LKContectGetHandler ERROR:%@",message);
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"发送失败", NSLocalizedDescriptionKey,[NSString stringWithFormat:@"失败原因：%@。",message], NSLocalizedFailureReasonErrorKey, @"恢复建议：请联系管理员。",NSLocalizedRecoverySuggestionErrorKey,nil];
+    LKError *error = [[LKError alloc] initWithDomain:NSCocoaErrorDomain code:status userInfo:userInfo];
+    
+    self.failure(error);
+}
+- (void)onStart{
+}
+- (void)onSuccess:(NSData*)header body:(NSData*)body{
+    
+    NSDictionary *headerDic;
+    NSArray *bodyArray;
+    if(header){
+        headerDic = [NSJSONSerialization JSONObjectWithData:header options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(body){
+        bodyArray = [NSJSONSerialization JSONObjectWithData:body options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(!headerDic){
+        headerDic = @{};
+    }
+    if(!bodyArray){
+        bodyArray = @[];
+    }
+    NSMutableArray *array = [NSMutableArray array];
+    for (NSDictionary *dic in bodyArray){
+        
+        ChatModel *model  = [[ChatModel alloc] init];
+        model.fromId = dic[@"from"];
+        model.time     = [dic[@"create_at"] intValue];
+        if([dic[@"msg"][@"type"] isEqualToString:@"text"]){
+            model.log = dic[@"msg"][@"message"];
+        }
+        [array addObject:model];
+    }
+    self.succeed(array.copy);
+}
+
+@end
+
+@implementation LKGetHistoryHandler
+
+- (void)onEnd{
+    NSLog(@"%s",__func__);
+}
+- (void)onError:(long)status message:(NSString*)message{
+    NSLog(@"LKContectGetHandler ERROR:%@",message);
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"发送失败", NSLocalizedDescriptionKey,[NSString stringWithFormat:@"失败原因：%@。",message], NSLocalizedFailureReasonErrorKey, @"恢复建议：请联系管理员。",NSLocalizedRecoverySuggestionErrorKey,nil];
+    LKError *error = [[LKError alloc] initWithDomain:NSCocoaErrorDomain code:status userInfo:userInfo];
+    
+    self.failure(error);
+}
+- (void)onStart{
+}
+- (void)onSuccess:(NSData*)header body:(NSData*)body{
+    
+    NSDictionary *headerDic;
+    NSArray *bodyArray;
+    if(header){
+        headerDic = [NSJSONSerialization JSONObjectWithData:header options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(body){
+        bodyArray = [NSJSONSerialization JSONObjectWithData:body options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(!headerDic){
+        headerDic = @{};
+    }
+    if(!bodyArray){
+        bodyArray = @[];
+    }
+    NSMutableArray *array = [NSMutableArray array];
+    for (NSDictionary *dic in bodyArray){
+        
+        ChatModel *model  = [[ChatModel alloc] init];
+        model.fromId = dic[@"from"];
+        model.time     = [dic[@"create_at"] intValue];
+        if([dic[@"msg"][@"type"] isEqualToString:@"text"]){
+            model.log = dic[@"msg"][@"message"];
+        }
+        [array addObject:model];
+    }
+    self.succeed(array.copy);
+}
+
+@end
 
 @implementation LKStickroomHandler
 - (void)onEnd{
