@@ -158,6 +158,8 @@
         
         ChatModel *model  = [[ChatModel alloc] init];
         model.fromId = dic[@"from"];
+        NSString *userID = [[NSUserDefaults standardUserDefaults] stringForKey:@"userID"];
+        model.isMe = [model.fromId isEqualToString:userID];
         model.time     = [dic[@"create_at"] intValue];
         if([dic[@"msg"][@"type"] isEqualToString:@"text"]){
             model.log = dic[@"msg"][@"message"];
@@ -295,4 +297,60 @@
     }
     self.succeed(room,array);
 }
+@end
+
+@implementation LKFetchMembersAuthorityHandler
+- (void)onEnd{
+    NSLog(@"%s",__func__);
+}
+- (void)onError:(long)status message:(NSString*)message{
+    NSLog(@"LKContectGetHandler ERROR:%@",message);
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"发送失败", NSLocalizedDescriptionKey,[NSString stringWithFormat:@"失败原因：%@。",message], NSLocalizedFailureReasonErrorKey, @"恢复建议：请联系管理员。",NSLocalizedRecoverySuggestionErrorKey,nil];
+    LKError *error = [[LKError alloc] initWithDomain:NSCocoaErrorDomain code:status userInfo:userInfo];
+    
+    self.failure(error);
+}
+- (void)onStart{
+}
+- (void)onSuccess:(NSData*)header body:(NSData*)body{
+    
+    NSDictionary *headerDic;
+    NSArray *bodyArray;
+    if(header){
+        headerDic = [NSJSONSerialization JSONObjectWithData:header options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(body){
+        bodyArray = [NSJSONSerialization JSONObjectWithData:body options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(!headerDic){
+        headerDic = @{};
+    }
+    if(!bodyArray){
+        bodyArray = @[];
+    }
+    NSMutableArray *array = [NSMutableArray array];
+        for(NSDictionary *dic in bodyArray){
+            LKChatroomMemeber *member = [[LKChatroomMemeber alloc] init];
+            member.userId = dic[@"user_id"];
+            member.mark   = dic[@"mark"];
+            member.nickname = dic[@"nickname"];
+            member.firstLetter = dic[@"first_letter"];
+            NSString *avatarPrefix = [[NSUserDefaults standardUserDefaults] objectForKey:@"avatar_prefix"];
+            member.avatar      = [NSString stringWithFormat:@"%@%@",avatarPrefix,dic[@"avatar"]];
+            if([dic[@"type"] integerValue] == 1){
+                member.type = LKChatroomPermissionTypeOwner;
+            }
+            else if([dic[@"type"] integerValue] == 2){
+                member.type = LKChatroomPermissionTypeAdmin;
+            }
+            else if([dic[@"type"] integerValue] == 9){
+                member.type = LKChatroomPermissionTypeMember;
+            }
+            else
+                member.type = LKChatroomPermissionTypeNone;
+            [array addObject:member];
+        }
+    self.succeed(array);
+}
+
 @end

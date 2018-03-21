@@ -222,7 +222,7 @@
 - (void) loginWithUsername:(NSString *)aUsername
                   password:(NSString *)aPassword
                 completion:(void(^)(NSString *aUsername, LKError *aError))aCompletionBlock;
-- (void)loginWithToken:(NSString *)token;
+- (void)loginWithToken:(NSString *)token completion:(void(^)(LKError *aError))aCompletionBlock;;
 
 //- (void) loginWithUsername:(NSString *)aUsername
 //                  password:(NSString *)aPassword

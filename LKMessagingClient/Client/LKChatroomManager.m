@@ -173,7 +173,36 @@
     }
     
 }
+/**
+ *  获取聊天室详情 {"room_id":"5a8bce182b934169cf517b41","authority":2]}0.所有成员  1.owner 2.admin 9.menber
+ *
+ */
 
+- (void)fechtChatroomMembers:(NSString *)room_id type:(int)type block:(void(^)(NSArray *array)) block{
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:room_id, @"room_id",@(type),@"authority", nil];
+    
+    
+    NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
+    
+    LKFetchMembersAuthorityHandler *handler = [[LKFetchMembersAuthorityHandler alloc] init];
+    
+    handler.succeed = ^(NSArray *array) {
+        //   aCompletionBlock(aMessage2, nil);
+        block(array);
+    };
+    handler.failure = ^(LKError *err) {
+        //  aCompletionBlock(nil,err);
+        NSLog(@"%s fail",  __func__);
+        block(nil);
+    };
+    
+    LKError *err0 = nil;
+    [_client asyncSend:@"/v1/fetch/chatroom/members" param:data callback:handler error:&err0];
+    if(err0){
+        NSLog(@"asyncSend fail");
+        // aCompletionBlock(nil,err0);
+    }
+}
 
 /**
  *  获取置顶聊天室列表 {"lang":"en-us","cache_time":1519251378}
@@ -265,13 +294,42 @@
         NSLog(@"asyncSend fail");
     }
 }
+/**
+ *  //获取聊天室历史消息 根据关键字
+ *
+ */
+
+- (void)getHistoryRoomMessage:(NSString *)room_id  keyword:(NSString *)keyword limit:(int)limit block:(void(^)(NSArray *messageArray))block{
+    if(!keyword){
+        keyword = @"";
+    }
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:room_id, @"room_id",keyword,@"keyword",@(limit),@"limit",nil];
+    
+    NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
+    
+    LKGetHistoryHandler *handler = [[LKGetHistoryHandler alloc] init];
+    
+    handler.succeed = ^(NSArray<ChatModel *> *messageArray) {
+        block(messageArray);
+    };
+    handler.failure = ^(LKError *err) {
+        NSLog(@"%s fail",  __func__);
+        block(false);
+    };
+    
+    LKError *err0 = nil;
+    [_client asyncSend:@"/v1/search/chatroom/history/message" param:data callback:handler error:&err0];
+    if(err0){
+        NSLog(@"asyncSend fail");
+    }
+}
 
 
 /**
  *  添加管理员 {"room_id":"5a8bce182b934169cf517b41","admin_id":217}
  *
  */
-- (void)addChatRoom:(NSString *)room_id admin_id:(int)admin_id block:(void (^)(BOOL))block {
+- (void)addChatRoom:(NSString *)room_id admin_id:(int)admin_id block:(void (^)(BOOL bSuccess))block {
     
     NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:room_id, @"room_id",@(admin_id),@"admin_id",nil];
     NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
@@ -294,6 +352,36 @@
         NSLog(@"asyncSend fail");
         // aCompletionBlock(nil,err0);
     }
+}
+/**
+ *  批量添加管理员 {"room_id":"5a8bce182b934169cf517b41","admins_id":[217]}
+ *
+ */
+
+- (void)addChatRoom:(NSString *)room_id admins:(NSArray *)admin_list block:(void (^)(BOOL))block{
+    
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:room_id, @"room_id",admin_list,@"admins_id",nil];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
+    
+    LKChatroomHandler *handler = [[LKChatroomHandler alloc] init];
+    
+    handler.succeed = ^(BOOL aBool) {
+        //   aCompletionBlock(aMessage2, nil);
+        block(true);
+    };
+    handler.failure = ^(LKError *err) {
+        //  aCompletionBlock(nil,err);
+        NSLog(@"%s fail",  __func__);
+        block(false);
+    };
+    
+    LKError *err0 = nil;
+    [_client asyncSend:@"/v1/add/chatroom/admins" param:data callback:handler error:&err0];
+    if(err0){
+        NSLog(@"asyncSend fail");
+        // aCompletionBlock(nil,err0);
+    }
+    
 }
 
 /**
@@ -322,6 +410,36 @@
         NSLog(@"asyncSend fail");
         // aCompletionBlock(nil,err0);
     }
+}
+/**
+ *  批量删除管理员 {"room_id":"5a8bce182b934169cf517b41","admins_id":[217]}
+ *
+ */
+
+- (void)removeChatRoom:(NSString *)room_id admins:(NSArray *)admin_list block:(void (^)(BOOL))block{
+
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:room_id, @"room_id",admin_list,@"admins_id",nil];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
+    
+    LKChatroomHandler *handler = [[LKChatroomHandler alloc] init];
+    
+    handler.succeed = ^(BOOL aBool) {
+        //   aCompletionBlock(aMessage2, nil);
+        block(true);
+    };
+    handler.failure = ^(LKError *err) {
+        //  aCompletionBlock(nil,err);
+        NSLog(@"%s fail",  __func__);
+        block(false);
+    };
+    
+    LKError *err0 = nil;
+    [_client asyncSend:@"/v1/remove/chatroom/admins" param:data callback:handler error:&err0];
+    if(err0){
+        NSLog(@"asyncSend fail");
+        // aCompletionBlock(nil,err0);
+    }
+    
 }
 
 /**

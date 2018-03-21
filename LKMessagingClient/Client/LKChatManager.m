@@ -38,14 +38,29 @@
 }
 
 - (void)deleteConversation:(NSString *)aConversationId isDeleteMessages:(BOOL)aIsDeleteMessages completion:(void (^)(NSString *, LKError *))aCompletionBlock {
-   //  NSLog(@"%s not implement!", __func__);
     
-    int user_id = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"];
-    [_db dbDeleteConversation:aConversationId];
-    if (aIsDeleteMessages) {
-        BOOL result = [_db dbDeleteAllMsg:user_id toId:aConversationId];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:aConversationId, @"contact",@(aIsDeleteMessages),@"delete_message" ,nil];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
+    LKError *err0 = nil;
+    LKHandlerConDelete *handler = [[LKHandlerConDelete alloc]init];
+    typeof (self) __self = self;
+    handler.succeed = ^(BOOL *ret) {
+        //删除本地
+        int user_id = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"];
+        [__self.db dbDeleteConversation:aConversationId];
+        if (aIsDeleteMessages) {
+            [__self.db dbDeleteAllMsg:user_id toId:aConversationId];
+        }
+        aCompletionBlock(aConversationId, nil);
+    };
+    handler.failure = ^(LKError *err) {
+        aCompletionBlock(aConversationId,err);
+    };
+    [_client asyncSend:@"/v1/delete/conversation" param:data callback:handler error:&err0];
+    if(err0){
+        handler.failure(err0);
     }
-    aCompletionBlock(aConversationId, nil);
+    
 }
 
 - (void)deleteRoomMsg:(NSString *)roomId completion:(void (^)(BOOL ret))aCompletionBlock{

@@ -28,13 +28,20 @@
 - (void)updateChatroom:(NSString *)room_id notice:(NSString *)notice block:(void(^)(BOOL bSuccess)) block;
 //添加管理员
 - (void)addChatRoom:(NSString *)room_id admin_id:(int)admin_id block:(void(^)(BOOL bSuccess)) block;
+//批量添加管理员
+- (void)addChatRoom:(NSString *)room_id admins:(NSArray *)admin_list block:(void (^)(BOOL))block;
 //删除管理员
 - (void)removeChatRoom:(NSString *)room_id admin_id:(int)admin_id block:(void(^)(BOOL bSuccess)) block;
+//批量删除管理员
+- (void)removeChatRoom:(NSString *)room_id admins:(NSArray *)admin_list block:(void (^)(BOOL))block;
 // 删除聊天室成员
 - (void)removeChatRoom:(NSString *)room_id member:(int)member_id block:(void(^)(BOOL bSuccess)) block;
 // 批量删除聊天室成员
 - (void)removeChatRoom:(NSString *)room_id members:(NSArray *)member_list block:(void(^)(BOOL bSuccess)) block;
 
+
+//根据用户类型获取聊天室成员
+- (void)fechtChatroomMembers:(NSString *)room_id type:(int)type block:(void(^)(NSArray *array)) block;
 
 //获取聊天室详情 包括成员
 - (void)fetchChatRoomMembersFromServer:(NSString *)room_id block:(void(^)(LKChatroom *room,NSArray *array)) block;
@@ -44,4 +51,6 @@
 - (void)getStickRoomWithLang:(NSString *)lang block:(void(^)(NSArray *roomList)) block;
 //获取聊天室历史消息
 - (void)getHistoryRoomMessage:(NSString *)room_id startTime:(int)time limit:(int)limit block:(void(^)(NSArray *messageArray))block;
+//获取聊天室消息(根据关键字)
+- (void)getHistoryRoomMessage:(NSString *)room_id  keyword:(NSString *)keyword limit:(int)limit block:(void(^)(NSArray *messageArray))block;
 @end

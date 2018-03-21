@@ -43,8 +43,8 @@
 - (instancetype)initWithOptions:(NSDictionary *)options {
     
     if (self = [super init]) {
-//        static dispatch_once_t onceToken;
-//        dispatch_once(&onceToken, ^{
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
             self->_contactManager = [[LKContactManager alloc]init];
             self->_chatManager = [[LKChatManager alloc]init];
             self->_roomManager = [[LKChatroomManager alloc] init];
@@ -91,7 +91,7 @@
                                                        object:nil];
             
            
-//        });
+        });
     }
     return self;
 }
@@ -109,7 +109,7 @@
     };
     handler.failure = ^(LKError *err) {
     };
-    [client asyncSend:@"/v1/session/status" param:data callback:handler error:&err0];
+    [client syncSend:@"/v1/session/status" param:data callback:handler error:&err0];
     if(err0){
         
     }
@@ -169,27 +169,31 @@
 
 - (void)initSession{
 
-    NSString *sid = [[NSUserDefaults standardUserDefaults] valueForKey:@"sid"];
-    if (sid) {
-        NSLog(@"old sid = %@", sid);
-        [client setRequestProperty:@"sid" value:sid];
-    }
+//    NSString *sid = [[NSUserDefaults standardUserDefaults] valueForKey:@"sid"];
+//    if (sid) {
+//        NSLog(@"old sid = %@", sid);
+//        [client setRequestProperty:@"sid" value:sid];
+//    }
     
     [self initializeSessionSuccessful:^(NSDictionary *result) {
-        if (!sid)
+        if (result)
         {
             NSLog(@"new sid = %@", result[@"body"][@"value"]);
             if(result[@"body"][@"value"])
                 //存sid在磁盘上
                 [[NSUserDefaults standardUserDefaults] setValue:result[@"body"][@"value"] forKey:@"sid"];
             [self->client setRequestProperty:@"sid" value:result[@"body"][@"value"]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self login];
+
+            });
+
         }
         
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-           
-            [self login];
-        });
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        
+//        });
         
         
     } error:^(LKError *err) {
@@ -237,8 +241,7 @@
     return error;
 }
 
-- (void)loginWithToken:(NSString *)token
-{
+- (void)loginWithToken:(NSString *)token completion:(void(^)(LKError *aError))aCompletionBlock{
     __block LKError *error = nil;
     NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:token, @"token",nil];
     
@@ -249,13 +252,17 @@
     handler.succeed = ^(NSDictionary *result) {
       //  aCompletionBlock(aUsername,error);
         [[NSUserDefaults standardUserDefaults]setBool:true forKey:@"Chat_Login"];
-        NSLog(@"登录成功");
+        NSLog(@"通过token登录成功");
         [self addRxProcess];
+        self->_isLoggedIn = YES;
+        aCompletionBlock(nil);
     };
     handler.failure = ^(LKError *err) {
        // aCompletionBlock(aUsername,err);
         [[NSUserDefaults standardUserDefaults]setBool:false forKey:@"Chat_Login"];
-         NSLog(@"登录失败%@", err);
+         NSLog(@"通过token登录失败%@", err);
+        self->_isLoggedIn = NO;
+        aCompletionBlock(err);
     };
     
     [client syncSend:@"/v1/session/bind/uid/by/token" param:data callback:handler error:&error];
@@ -273,14 +280,23 @@
         //登陆
         [self loginWithUsername:account password:pwd completion:^(NSString *aUsername, LKError *aError) {
             if(!aError){
-                NSLog(@"登录成功");
+                NSLog(@"通过账号密码登录成功");
                 [self addRxProcess];
+                self->_isLoggedIn = YES;
+
             }
             else{
-                NSLog(@"登录失败%@",aError);
+                NSLog(@"通过账号密码登录失败%@",aError);
+                self->_isLoggedIn = NO;
             }
         }];
     }
+//    NSString *userToken = [[NSUserDefaults standardUserDefaults] stringForKey:@"userToken"];
+//    if (userToken) {
+//        [self loginWithToken:userToken completion:^(LKError *aError) {
+//
+//        }];
+//    }
 }
 
 - (void) loginWithUsername:(NSString *)aUsername

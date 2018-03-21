@@ -58,3 +58,38 @@
     }
 }
 @end
+
+@implementation LKHandlerConDelete
+#pragma mark - ExportRequestStatusCallback
+- (void)onEnd{
+    NSLog(@"%s",__func__);
+}
+- (void)onError:(long)status message:(NSString*)message{
+    //    NSLog(@"Send message ERROR:%@",message);
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"发送失败", NSLocalizedDescriptionKey,[NSString stringWithFormat:@"失败原因：%@。",message], NSLocalizedFailureReasonErrorKey, @"恢复建议：请联系管理员。",NSLocalizedRecoverySuggestionErrorKey,nil];
+    LKError *error = [[LKError alloc] initWithDomain:NSCocoaErrorDomain code:status userInfo:userInfo];
+    
+    self.failure(error);
+}
+- (void)onStart{
+}
+
+- (void)onSuccess:(NSData*)header body:(NSData*)body{
+    
+    NSDictionary *headerDic;
+    NSArray *bodyDic;
+    if(header){
+        headerDic = [NSJSONSerialization JSONObjectWithData:header options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(body){
+        bodyDic = [NSJSONSerialization JSONObjectWithData:body options:NSJSONReadingMutableContainers error:nil];
+    }
+    if(!headerDic){
+        headerDic = @{};
+    }
+    if(!bodyDic){
+        self.succeed(nil);
+    }
+    self.succeed(YES);
+}
+@end

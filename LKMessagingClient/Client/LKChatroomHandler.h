@@ -59,3 +59,10 @@
 
 @end
 
+@interface LKFetchMembersAuthorityHandler : NSObject <ExportRequestStatusCallback>
+
+@property (nonatomic, copy) void (^succeed)(NSArray *memberList);
+
+@property (nonatomic, copy) void (^failure)(LKError *err);
+
+@end
