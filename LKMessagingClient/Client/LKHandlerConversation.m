@@ -88,8 +88,8 @@
         headerDic = @{};
     }
     if(!bodyDic){
-        self.succeed(nil);
+        self.succeed(true);
     }
-    self.succeed(YES);
+    self.succeed(true);
 }
 @end

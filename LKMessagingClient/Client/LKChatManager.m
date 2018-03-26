@@ -44,7 +44,7 @@
     LKError *err0 = nil;
     LKHandlerConDelete *handler = [[LKHandlerConDelete alloc]init];
     typeof (self) __self = self;
-    handler.succeed = ^(BOOL *ret) {
+    handler.succeed = ^(BOOL ret) {
         //删除本地
         int user_id = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"];
         [__self.db dbDeleteConversation:aConversationId];

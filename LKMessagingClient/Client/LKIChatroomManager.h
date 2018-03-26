@@ -48,7 +48,7 @@
 //获取聊天室详情 不包括成员信息
 - (void)fetchChatRoomFromServer:(NSString *)room_id block:(void(^)(LKChatroom *room)) block;
 //获取置顶聊天室列表
-- (void)getStickRoomWithLang:(NSString *)lang block:(void(^)(NSArray *roomList)) block;
+- (void)getStickRooms:(void (^)(NSArray *roomList))block;
 //获取聊天室历史消息
 - (void)getHistoryRoomMessage:(NSString *)room_id startTime:(int)time limit:(int)limit block:(void(^)(NSArray *messageArray))block;
 //获取聊天室消息(根据关键字)

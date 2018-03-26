@@ -133,6 +133,20 @@ typedef enum{
  *
  */
 @property (nonatomic, assign) NSInteger membersCount;
+
+/*!
+ *  \~chinese
+ *  聊天室的中文名称
+ *
+ */
+@property (nonatomic, copy) NSString *cn_name;
+
+/*!
+ *  \~chinese
+ *  聊天室的英文名称
+ *
+ */
+@property (nonatomic, copy) NSString *en_name;
 /*!
  *  \~chinese
  *  聊天室的图标

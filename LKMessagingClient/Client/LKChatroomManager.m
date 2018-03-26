@@ -208,36 +208,66 @@
  *  获取置顶聊天室列表 {"lang":"en-us","cache_time":1519251378}
  *
  */
-- (void)getStickRoomWithLang:(NSString *)lang block:(void (^)(NSArray *roomList))block{
+- (void)getStickRooms:(void (^)(NSArray *roomList))block{
     
-//    NSInteger cache_time = [[NSUserDefaults standardUserDefaults]integerForKey:@"chatroom_last_cache_time"];
-    NSInteger cache_time = 0;
-
-    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:lang, @"lang",@(cache_time) ,@"cache_time",nil];
-
-    
-    NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
-    
-    LKStickroomHandler *handler = [[LKStickroomHandler alloc] init];
-    
-    handler.succeed = ^(NSInteger server_time, NSArray *room_list) {
-        //   aCompletionBlock(aMessage2, nil);
-        NSLog(@"%s success", __func__);
-        [[NSUserDefaults standardUserDefaults]setInteger:server_time forKey:@"chatroom_last_cache_time"];
-        block(room_list);
-    };
-    handler.failure = ^(LKError *err) {
-        //  aCompletionBlock(nil,err);
-        NSLog(@"%s fail",  __func__);
-        block(nil);
-    };
-    
-    LKError *err0 = nil;
-    [_client asyncSend:@"/v1/fetch/stick/chatroom" param:data callback:handler error:&err0];
-    if(err0){
-        NSLog(@"asyncSend fail");
-        // aCompletionBlock(nil,err0);
+    NSInteger cache_time = [[NSUserDefaults standardUserDefaults]integerForKey:@"chatroom_last_cache_time"];
+    if(!cache_time){
+        NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:@(cache_time) ,@"cache_time",nil];
+        
+        
+        NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
+        
+        LKStickroomHandler *handler = [[LKStickroomHandler alloc] init];
+        
+        handler.succeed = ^(NSInteger server_time, NSArray *room_list) {
+            //   aCompletionBlock(aMessage2, nil);
+            NSLog(@"%s success", __func__);
+            [[NSUserDefaults standardUserDefaults]setInteger:server_time forKey:@"chatroom_last_cache_time"];
+            block(room_list);
+        };
+        handler.failure = ^(LKError *err) {
+            //  aCompletionBlock(nil,err);
+            NSLog(@"%s fail",  __func__);
+            block(nil);
+        };
+        
+        LKError *err0 = nil;
+        [_client asyncSend:@"/v1/fetch/stick/chatroom" param:data callback:handler error:&err0];
+        if(err0){
+            NSLog(@"asyncSend fail");
+            // aCompletionBlock(nil,err0);
+        }
     }
+    else{
+        NSMutableArray *mutArray = [NSMutableArray array];
+
+        NSArray*path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory,NSUserDomainMask,YES);
+        NSString*cachePath = path[0];
+        NSString*filePathName = [cachePath stringByAppendingPathComponent:@"chatroom.plist"];
+        NSArray *array = [NSArray arrayWithContentsOfFile:filePathName];
+        if([array isKindOfClass:[NSArray class]]){
+            for(NSDictionary *dic in array){
+                LKChatroom *room = [[LKChatroom alloc] init];
+                NSString *language = [[NSUserDefaults standardUserDefaults]objectForKey:@"appLanguage"];
+                if ([language isEqualToString: @"en"]) {
+                    room.subject = dic[@"en_name"];
+                }
+                else{
+                    room.subject = dic[@"cn_name"];
+                }
+                room.cn_name = dic[@"cn_name"];
+                room.en_name = dic[@"en_name"];
+                NSString *avatarPre = [[NSUserDefaults standardUserDefaults] objectForKey:@"avatar_prefix"];
+                room.avatar = [NSString stringWithFormat:@"%@%@",avatarPre,dic[@"avatar"]];
+                room.chatroomId = dic[@"id"];
+                [mutArray addObject:room];
+            }
+            
+        }
+        block(mutArray);
+        
+    }
+   
 }
 
 /**

@@ -201,16 +201,33 @@
         bodyDic = @{};
     }
     NSMutableArray *array = [NSMutableArray array];
+    
+    NSArray*path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory,NSUserDomainMask,YES);
+    NSString*cachePath = path[0];
+    NSString*filePathName = [cachePath stringByAppendingPathComponent:@"chatroom.plist"];
+
     if([[bodyDic objectForKey:@"chat_room"] isKindOfClass:[NSArray class]]){
         for(NSDictionary *dic in [bodyDic objectForKey:@"chat_room"]){
             LKChatroom *room = [[LKChatroom alloc] init];
-            room.subject = dic[@"name"];
+            NSString *language = [[NSUserDefaults standardUserDefaults]objectForKey:@"appLanguage"];
+            if ([language isEqualToString: @"en"]) {
+                room.subject = dic[@"en_name"];
+            }
+            else{
+                room.subject = dic[@"cn_name"];
+            }
+            room.cn_name = dic[@"cn_name"];
+            room.en_name = dic[@"en_name"];
             if([bodyDic objectForKey:@"avatar_prefix"])
                 [[NSUserDefaults standardUserDefaults] setObject:[bodyDic objectForKey:@"avatar_prefix"] forKey:@"avatar_prefix"];
             room.avatar = [NSString stringWithFormat:@"%@%@",[bodyDic objectForKey:@"avatar_prefix"],dic[@"avatar"]];
             room.chatroomId = dic[@"id"];
             [array addObject:room];
         }
+        
+        NSArray *writeArray = [NSArray arrayWithArray:bodyDic[@"chat_room"]];
+        
+        [writeArray writeToFile:filePathName atomically:YES];
     }
     NSInteger time = [[bodyDic objectForKey:@"server_time"] integerValue];
     

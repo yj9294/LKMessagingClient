@@ -18,7 +18,7 @@
 
 @interface LKHandlerConDelete : NSObject <ExportRequestStatusCallback>
 
-@property (nonatomic, copy) void (^succeed)(BOOL *ret);
+@property (nonatomic, copy) void (^succeed)(BOOL ret);
 
 @property (nonatomic, copy) void (^failure)(LKError *err);
 
