@@ -50,16 +50,16 @@
             self->_roomManager = [[LKChatroomManager alloc] init];
             self->_db = [DBManager sharedManager];
             self->_handlerConn = [[LKConnectionHandler alloc]init];
+            
             self->_handlerConn.onConnection = ^(LKMessage *aMessage) {
                 NSLog(@"网络已连接");
-
                 [[NSNotificationCenter defaultCenter]postNotificationName:@"connectedNotify" object:aMessage];
             };
-            
             self->_handlerConn.onDisconnect = ^(LKError *err) {
                 NSLog(@"网络已断开");
                 [[NSNotificationCenter defaultCenter]postNotificationName:@"disconnectedNotify" object:nil];
             };
+            
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(reachabilityChanged:)
                                                          name:kReachabilityChangedNotification2
@@ -74,13 +74,12 @@
             NSString *ip = options[@"ip"];
             NSNumber *port = options[@"port"];
             
-             self->client = [[ExportClient alloc] init:ip port:port.intValue readyStateCallback:self];
-//            [self->client setDebug:true];
-        
+            self->client = [[ExportClient alloc] init:ip port:port.intValue readyStateCallback:self];
+            //            [self->client setDebug:true];
             
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(appDidChangeState:)
-                                                    name:UIApplicationDidBecomeActiveNotification
+                                                         name:UIApplicationDidBecomeActiveNotification
                                                        object:nil];
             
             [[NSNotificationCenter defaultCenter] addObserver:self
@@ -105,10 +104,7 @@
     };
     handler.failure = ^(LKError *err) {
     };
-    [client syncSend:@"/v1/session/status" param:data callback:handler error:&err0];
-    if(err0){
-        
-    }
+    [client asyncSend:@"/v1/session/status" param:data callback:handler error:&err0];
 }
 
 - (void)reachabilityChanged:(NSNotification *)note {
@@ -120,14 +116,10 @@
         if (_handlerConn && _handlerConn.onDisconnect) {
             _handlerConn.onDisconnect(nil);
         }
-        
-        // NSLog(@"Notification Says no network");
     } else if (status == _ReachableViaWWAN || status == _ReachableViaWiFi) {
         if (_handlerConn && _handlerConn.onConnection) {
             _handlerConn.onConnection(nil);
         }
-        
-        //   NSLog(@"Notification Says network ok");
     }
 }
 
@@ -166,7 +158,6 @@
     NSString *appName = dic[@"CFBundleName"];
     NSString *devToken = [[NSUserDefaults standardUserDefaults]objectForKey:@"deviceTokenForIM"];
     NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:@"mobile",@"device",@"iOS",@"os", osVer,@"os_version",appName,@"app",localVersionShort,@"app_version",@{},@"tag", devToken, @"push_token", nil];
-   
     NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:nil];
     LKHandler *handler = [[LKHandler alloc] init];
     handler.succeed = ^(NSDictionary *result) {
@@ -197,9 +188,7 @@
             [self login];
         });
     } error:^(LKError *err) {
-       // [self openConnect];
     }];
-    
 }
 
 - (void)heartbeatSuccessful:(void(^)(NSDictionary *result))successful error:(void(^)(LKError *err))error{
@@ -234,7 +223,6 @@
                 NSLog(@"通过账号密码登录成功");
                 [self addRxProcess];
                 self->_isLoggedIn = YES;
-                
             }
             else{
                 NSLog(@"通过账号密码登录失败%@",aError);
@@ -261,13 +249,13 @@
 - (LKError *) loginWithUsername:(NSString *)     aUsername
                        password:(NSString *)     aPassword{
     
-   __block LKError *error = nil;
+    __block LKError *error = nil;
     objc_setAssociatedObject(self, @selector(password), aPassword, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:aUsername,@"id",aPassword,@"password",nil];
     NSData *data = [NSJSONSerialization dataWithJSONObject:param options:NSJSONWritingPrettyPrinted error:&error];
     LKLoginHandler *handler = [[LKLoginHandler alloc] init];
     handler.succeed = ^(NSDictionary *result) {
-
+        
     };
     handler.failure = ^(LKError *err) {
         error = err;
@@ -289,10 +277,7 @@
         aCompletionBlock(err);
     };
     
-    [client syncSend:@"/v1/session/bind/uid/by/token" param:data callback:handler error:&error];
-    if(error){
-         NSLog(@"登录失败%@", error);
-    }
+    [client asyncSend:@"/v1/session/bind/uid/by/token" param:data callback:handler error:&error];
 }
 
 - (void) loginWithUsername:(NSString *)aUsername
@@ -311,10 +296,7 @@
     handler.failure = ^(LKError *err) {
         aCompletionBlock(aUsername,err);
     };
-    [client syncSend:@"/v1/session/bind/uid" param:data callback:handler error:&error];
-    if(error){
-        aCompletionBlock(aUsername,error);
-    }
+    [client asyncSend:@"/v1/session/bind/uid" param:data callback:handler error:&error];
 }
 - (void)logoutCompletion:(void(^)(LKError *aError))aCompletionBlock{
     __block  LKError *error = nil;
@@ -339,7 +321,7 @@
 }
 
 - (void)getDeviceInfo:(void(^)(NSArray  <LKChatSession *> *sessionList, LKError *aError))aCompletionBlock{
-
+    
     LKAcquireHandler *handler = [[LKAcquireHandler alloc] init];
     
     handler.succeed = ^(NSArray<LKChatSession *> *list) {
@@ -350,9 +332,6 @@
     };
     NSError *err0 = nil;
     [client asyncSend:@"/v1/session/list" param:nil callback:handler error:&err0];
-    if(err0){
-        aCompletionBlock(nil , (LKError *)err0);
-    }
 }
 
 #pragma mark - ExportErrorHandler
