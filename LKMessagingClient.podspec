@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "LKMessagingClient"
-  s.version      = "1.1.2"
+  s.version      = "1.1.3"
   s.summary      = "A short description of LKMessagingClient."
 
   # This description is used to generate tags and improve search results.
@@ -134,9 +134,6 @@ Pod::Spec.new do |s|
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
 
-  s.xcconfig = {
-'VALID_ARCHS' =>  ['arm64', 'x86_64','armv7']
-}
   s.dependency 'FMDB'
 
 end
