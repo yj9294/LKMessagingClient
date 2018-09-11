@@ -41,7 +41,8 @@
     }
     else {
         NSMutableArray *array = [NSMutableArray array];
-        for (NSDictionary *convDic in bodyDic) {
+        NSArray *convArray = [bodyDic valueForKey:@"data"];
+        for (NSDictionary *convDic in convArray) {
             int user_id = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"userID"];
             NSString *convId = convDic[@"from"];
             if ([convDic[@"from"] intValue] == user_id) {
